@@ -1,0 +1,211 @@
+package msg;
+
+import gherkin.deps.com.google.gson.annotations.Expose;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+
+public class OriginalMsg implements Serializable {
+
+    public class SensorMsg {
+        Object id;
+        Object v;
+        // Object q;
+        // Object t;
+    }
+
+    @Expose
+    private long timestamp;
+
+    @Expose
+    private List<SensorMsg> values;
+
+
+    /**
+     * 记录所有PLC点位的对应关系
+     */
+    private static final Map<String, String> mapping = new HashMap<>();
+
+    /**
+     * 记录设备状态的对应关系
+     */
+    private static final Map<Integer, String> deviceStatusMapping = new HashMap<>();
+
+    /**
+     * 记录数值点位的数量 (5H.5H开头的)
+     */
+    private static int requiredCount;
+
+    private static final Logger logger = LoggerFactory.getLogger(OriginalMsg.class);
+
+    static {
+        mapping.put("batch", "6032.6032.YS2CUTBATCHNO");
+        mapping.put("brand", "6032.6032.YS2CUTBRAND");
+        mapping.put("deviceStatus1", "5H.5H.K1_Z7TT1_PHASE1");
+        mapping.put("deviceStatus2", "5H.5H.K1_Z7TT1_PHASE2");
+        mapping.put("flowAcc", "5H.5H.YT6032_CK_ACCU_PV");
+        mapping.put("humidOut", "5H.5H.K1_Z7ZF2B1VALUE_1");
+        mapping.put("humidIn", "5H.5H.K1_Z7ZF1B1VALUE_1");
+        mapping.put("humidSetting", "5H.5H.K1_Z7TT1VALUE_20");
+        mapping.put("windSpeed", "5H.5H.K1_Z7TT1VALUE_24");
+        mapping.put("tempSetting1", "5H.5H.K1_Z7TT1VALUE_1");
+        mapping.put("tempActual1", "5H.5H.K1_Z7TT1VALUE_2");
+        mapping.put("tempSetting2", "5H.5H.K1_Z7TT1VALUE_4");
+        mapping.put("tempActual2", "5H.5H.K1_Z7TT1VALUE_5");
+        mapping.put("press", "5H.5H.K1_Z7TT1VALUE_29");
+
+        deviceStatusMapping.put(8, "准备");
+        deviceStatusMapping.put(16, "启动");
+        deviceStatusMapping.put(32, "生产");
+        deviceStatusMapping.put(64, "收尾");
+
+        mapping.values().forEach(new Consumer<String>() {
+            @Override
+            public void accept(String s) {
+                requiredCount = s.startsWith("5H.5H") ? requiredCount + 1 : requiredCount;
+            }
+        });
+
+    }
+
+    private static String getKey(String value) {
+        String key = "";
+        for (Map.Entry<String, String> entry : mapping.entrySet()) {
+            if (value.equals(entry.getValue())) {
+                key = entry.getKey();
+            }
+        }
+        return key;
+    }
+
+
+    public static boolean isInProductMode(int deviceStatus) {
+        return deviceStatusMapping.containsKey(deviceStatus);
+    }
+
+
+    public OriginalMsg(long timestamp, List<SensorMsg> values) {
+        this.timestamp = timestamp;
+        this.values = values;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public int getPLCSize() {
+        return values == null ? 0 : values.size();
+    }
+
+    public double getFlowAcc() {
+        if (values.size() == 0) {
+            return -1d;
+        }
+        for (SensorMsg sensorMsg : values) {
+            if (sensorMsg.id instanceof String && sensorMsg.id.equals(mapping.get("flowAcc"))) {
+                return (double) sensorMsg.v;
+            }
+        }
+        return -1d;
+    }
+
+    public boolean isBatchStart() {
+        return getFlowAcc() == 0;
+    }
+
+    public int getDeviceStatus() {
+        if (values.size() == 0) {
+            return 1;
+        }
+        double deviceStatus1 = 1d, deviceStatus2 = 0d;
+        for (SensorMsg sensorMsg : values) {
+            if (sensorMsg.id instanceof String && sensorMsg.id.equals(mapping.get("deviceStatus1"))) {
+                deviceStatus1 = (double) sensorMsg.v;
+            }
+            if (sensorMsg.id instanceof String && sensorMsg.id.equals(mapping.get("deviceStatus2"))) {
+                deviceStatus2 = (double) sensorMsg.v;
+            }
+        }
+        return (int) (deviceStatus1 + deviceStatus2 * 256);
+    }
+
+    public String getBrand() {
+        if (values.size() == 0) {
+            return "";
+        }
+        for (SensorMsg sensorMsg : values) {
+            if (sensorMsg.id instanceof String && sensorMsg.id.equals(mapping.get("brand"))) {
+                return (String) sensorMsg.v;
+            }
+        }
+        return "";
+    }
+
+    public String getBatch() {
+        if (values.size() == 0) {
+            return "";
+        }
+        for (SensorMsg sensorMsg : values) {
+            if (sensorMsg.id instanceof String && sensorMsg.id.equals(mapping.get("batch"))) {
+                return (String) sensorMsg.v;
+            }
+        }
+        return "";
+    }
+
+    /**
+     * 从点位中得到数据
+     * 1. 点位信息缺失 -> 返回空数组
+     * 2. 点位信息重复 -> 返回空数组
+     */
+    public Double[] generate() {
+        if (values.size() == 0) {
+            return new Double[]{};
+        }
+        Map<String, Double> result = new HashMap<>();
+
+        int count = 0;
+        for (SensorMsg sensorMsg : values) {
+            String key = getKey((String) sensorMsg.id);
+            // 数据中可能存在2个相同的key (brand 和 batch)
+            if (sensorMsg.id instanceof String && mapping.containsValue(sensorMsg.id) && !result.containsKey(key)) {
+                if (((String) sensorMsg.id).startsWith("5H.5H")) {
+                    count++;
+                    result.put(key, (Double) sensorMsg.v);
+                }
+            }
+        }
+        if (count != requiredCount) {
+            logger.error("Time in " + getTimestamp() + " is missing or duplicate value: current=" + count + " while required=" + requiredCount);
+            return new Double[]{};
+        }
+        return new Double[]{
+                result.get("humidOut") - result.get("humidSetting"),
+                result.get("windSpeed"),
+                result.get("humidOut"),
+                result.get("humidIn"),
+                result.get("press"),
+                result.get("tempActual1"),
+                result.get("tempSetting1"),
+                result.get("tempActual2"),
+                result.get("tempSetting2"),
+        };
+    }
+
+    @Override
+    public String toString() {
+        return getTimestamp() + " brand:" +
+                getBrand() + " plc_size:" +
+                getPLCSize() + " batch:" +
+                getBatch() + " device_status:" +
+                getDeviceStatus() + " flow:" +
+                getFlowAcc() + " features:" +
+                Arrays.toString(generate());
+    }
+}
