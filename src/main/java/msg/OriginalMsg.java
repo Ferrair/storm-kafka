@@ -45,20 +45,21 @@ public class OriginalMsg implements Serializable {
     private static final Logger logger = LoggerFactory.getLogger(OriginalMsg.class);
 
     static {
-        mapping.put("batch", "6032.6032.YS2CUTBATCHNO");
-        mapping.put("brand", "6032.6032.YS2CUTBRAND");
-        mapping.put("deviceStatus1", "5H.5H.K1_Z7TT1_PHASE1");
-        mapping.put("deviceStatus2", "5H.5H.K1_Z7TT1_PHASE2");
-        mapping.put("flowAcc", "5H.5H.YT6032_CK_ACCU_PV");
-        mapping.put("humidOut", "5H.5H.K1_Z7ZF2B1VALUE_1");
-        mapping.put("humidIn", "5H.5H.K1_Z7ZF1B1VALUE_1");
-        mapping.put("humidSetting", "5H.5H.K1_Z7TT1VALUE_20");
-        mapping.put("windSpeed", "5H.5H.K1_Z7TT1VALUE_24");
-        mapping.put("tempSetting1", "5H.5H.K1_Z7TT1VALUE_1");
-        mapping.put("tempActual1", "5H.5H.K1_Z7TT1VALUE_2");
-        mapping.put("tempSetting2", "5H.5H.K1_Z7TT1VALUE_4");
-        mapping.put("tempActual2", "5H.5H.K1_Z7TT1VALUE_5");
-        mapping.put("press", "5H.5H.K1_Z7TT1VALUE_29");
+        mapping.put("batch", "6032.6032.LD5_YT603_2_YS2ROASTBATCHNO");
+        mapping.put("brand", "6032.6032.LD5_YT603_2_YS2ROASTBRAND");
+        mapping.put("deviceStatus1", "5H.5H.LD5_KL2226_PHASE1");
+        mapping.put("deviceStatus2", "5H.5H.LD5_KL2226_PHASE2");
+        mapping.put("siroxWorkStatus", "5H.5H.LD5_KL2226_SiroxWorkStatus");
+        mapping.put("flowAcc", "5H.5H.LD5_CK2222_TbcLeafFlowSH");
+        mapping.put("humidOut", "5H.5H.LD5_KL2226_ZF2LeafMois");
+        mapping.put("humidIn", "5H.5H.LD5_KL2226_InputMoisture");
+        mapping.put("humidSetting", "5H.5H.LD5_KL2226_TT1LastMoisSP");
+        mapping.put("windSpeed", "5H.5H.LD5_KL2226_ProcAirSpeedPV");
+        mapping.put("tempSetting1", "5H.5H.LD5_KL2226_BucketTemp1SP");
+        mapping.put("tempActual1", "5H.5H.LD5_KL2226_BucketTemp1PV");
+        mapping.put("tempSetting2", "5H.5H.LD5_KL2226_BucketTemp2SP");
+        mapping.put("tempActual2", "5H.5H.LD5_KL2226_BucketTemp2PV");
+        mapping.put("press", "5H.5H.LD5_KL2226_BacCoverPrePV");
 
         deviceStatusMapping.put(8, "准备");
         deviceStatusMapping.put(16, "启动");
