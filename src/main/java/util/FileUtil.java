@@ -1,18 +1,18 @@
 package util;
 
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.*;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
 public class FileUtil {
 
-    public static void save(String result, String pathname) throws Exception {
-        File txt = new File(pathname);
+    public static void append(String line, String pathName) throws Exception {
+        File txt = new File(pathName);
         if (!txt.exists()) {
             txt.createNewFile();
         }
-        FileOutputStream fos = new FileOutputStream(txt);
-        fos.write(result.getBytes());
+        FileWriter fw = new FileWriter(txt, true);
+        PrintWriter fos = new PrintWriter(fw);
+        fos.println(line);
         fos.flush();
         fos.close();
     }

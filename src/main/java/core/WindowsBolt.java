@@ -62,7 +62,7 @@ public class WindowsBolt extends BaseRichBolt {
     /**
      * 判断是否ack
      */
-    private final boolean ack = false;
+    private final boolean ack = true;
 
     @Override
     public void prepare(Map<String, Object> map, TopologyContext topologyContext, OutputCollector outputCollector) {
@@ -187,21 +187,6 @@ public class WindowsBolt extends BaseRichBolt {
 
         // 检查时间戳
         long time = originalMsg.getTimestamp();
-//        if (time < 1583441305448L) {
-//            window.clear();
-//            return;
-//        }
-//        if (time > 1583474400000L) {
-//            try {
-//                FileUtil.save(stringBuilder.toString(), "snapshot.txt");
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//            throw new IllegalStateException("Qihang");
-//        }
-//
-//        saveIoTMsg(Arrays.toString(originalMsg.generate()));
-        // logger.info(originalMsg.toString());
         if (!checkTimeStamp(time)) {
             logger.error("Current timestamp  " + time + " is smaller than last timestamp " + lastTimestamp);
             if (ack) {
@@ -249,11 +234,7 @@ public class WindowsBolt extends BaseRichBolt {
         }
     }
 
-    //    private StringBuilder stringBuilder = new StringBuilder();
-//
-//    private void saveIoTMsg(String str) {
-//        stringBuilder.append(str).append("\n");
-//    }
+
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
         outputFieldsDeclarer.declare(new Fields("window"));

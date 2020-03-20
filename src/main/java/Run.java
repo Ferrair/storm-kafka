@@ -1,8 +1,5 @@
 import config.AppConfig;
-import core.ControlBolt;
-import core.FeatureComputeBolt;
-import core.ModelBolt;
-import core.WindowsBolt;
+import core.*;
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.StormSubmitter;
@@ -21,8 +18,7 @@ public class Run {
         if ("test".equals(AppConfig.AppGlobalConfig.env)) {
             Test test = new Test();
             test.run();
-        }
-        else {
+        } else {
             final TopologyBuilder tp = new TopologyBuilder();
 
             KafkaSpoutConfig<String, String> kafkaSpoutConfig = KafkaSpoutConfig.builder(
@@ -33,7 +29,8 @@ public class Run {
                     .build();
 
             KafkaSpout<String, String> kafkaSpout = new KafkaSpout<>(kafkaSpoutConfig);
-            tp.setSpout("kafka", new KafkaSpout<String, String>(kafkaSpoutConfig),1);
+            tp.setSpout("kafka", new KafkaSpout<String, String>(kafkaSpoutConfig), 1);
+            tp.setBolt("check", new CheckBlot(), 1).shuffleGrouping("kafka");
             tp.setBolt("window", new WindowsBolt(), 1).shuffleGrouping("kafka");
             tp.setBolt("feature_compute", new FeatureComputeBolt()).fieldsGrouping("window", new Fields("window"));
             tp.setBolt("model", new ModelBolt()).fieldsGrouping("feature_compute", new Fields("features"));
@@ -46,8 +43,7 @@ public class Run {
                 LocalCluster cluster = new LocalCluster();
 
                 cluster.submitTopology(AppConfig.AppGlobalConfig.appName, conf, sp);
-            }
-            else if("cluster".equals(AppConfig.AppGlobalConfig.env)){
+            } else if ("cluster".equals(AppConfig.AppGlobalConfig.env)) {
                 StormSubmitter.submitTopology(AppConfig.AppGlobalConfig.appName, conf, sp);
             }
 
