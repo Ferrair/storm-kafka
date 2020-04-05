@@ -124,16 +124,22 @@ public class OriginalMsg implements Serializable {
         if (values.size() == 0) {
             return 1;
         }
-        double deviceStatus1 = 1d, deviceStatus2 = 0d;
-        for (SensorMsg sensorMsg : values) {
-            if (sensorMsg.id instanceof String && sensorMsg.id.equals(mapping.get("deviceStatus1"))) {
-                deviceStatus1 = Double.parseDouble((String) sensorMsg.v);
+        try {
+            double deviceStatus1 = 1d, deviceStatus2 = 0d;
+            for (SensorMsg sensorMsg : values) {
+                if (sensorMsg.id instanceof String && sensorMsg.id.equals(mapping.get("deviceStatus1"))) {
+                    deviceStatus1 = Double.parseDouble((String) sensorMsg.v);
+                }
+                if (sensorMsg.id instanceof String && sensorMsg.id.equals(mapping.get("deviceStatus2"))) {
+                    deviceStatus2 = Double.parseDouble((String) sensorMsg.v);
+                }
             }
-            if (sensorMsg.id instanceof String && sensorMsg.id.equals(mapping.get("deviceStatus2"))) {
-                deviceStatus2 = Double.parseDouble((String) sensorMsg.v);
-            }
+            return (int) (deviceStatus1 + deviceStatus2 * 256);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            return 1;
         }
-        return (int) (deviceStatus1 + deviceStatus2 * 256);
+
     }
 
     public String getBrand() {
