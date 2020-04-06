@@ -176,24 +176,23 @@ public class OriginalMsg implements Serializable {
             return new Double[]{};
         }
         Map<String, Double> result = new HashMap<>();
-
-        int count = 0;
-        for (SensorMsg sensorMsg : values) {
-            String key = getKey((String) sensorMsg.id);
-            // 数据中可能存在2个相同的key (brand 和 batch)
-            if (sensorMsg.id instanceof String && mapping.containsValue(sensorMsg.id) && !result.containsKey(key)) {
-                if (((String) sensorMsg.id).startsWith("5H.5H")) {
-                    count++;
-                    result.put(key, Double.parseDouble((String) sensorMsg.v));
-                }
-            }
-        }
-        if (count != requiredCount) {
-            logger.error("Time in " + getTimestamp() + " is missing or duplicate value: current=" + count + " while required=" + requiredCount);
-            return new Double[]{};
-        }
         Double[] msg = new Double[]{};
         try {
+            int count = 0;
+            for (SensorMsg sensorMsg : values) {
+                String key = getKey((String) sensorMsg.id);
+                // 数据中可能存在2个相同的key (brand 和 batch)
+                if (sensorMsg.id instanceof String && mapping.containsValue(sensorMsg.id) && !result.containsKey(key)) {
+                    if (((String) sensorMsg.id).startsWith("5H.5H")) {
+                        count++;
+                        result.put(key, Double.parseDouble((String) sensorMsg.v));
+                    }
+                }
+            }
+            if (count != requiredCount) {
+                logger.error("Time in " + getTimestamp() + " is missing or duplicate value: current=" + count + " while required=" + requiredCount);
+                return new Double[]{};
+            }
             msg = new Double[]{
                     result.get("humidOut") - result.get("humidSetting"),
                     result.get("windSpeed"),
