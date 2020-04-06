@@ -40,6 +40,8 @@ public class ModelBolt extends BaseRichBolt {
         params.put("index", msg.getIndex());
         params.put("stage", msg.getStage());
         params.put("features", msg.generate());
+        params.put("originals", msg.getHumidDiffOriginal());
+        
         Response response = null;
         try {
             response = AppUtil.doPost(AppConfig.ModelServerConfig.modelUrl, String.valueOf(new JSONObject(params)));

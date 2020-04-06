@@ -6,7 +6,7 @@ kafka-spout:
   host: 10.100.100.105
   # host: kfan01.chinaeast2.cloudapp.chinacloudapi.cn
   port: 9092
-  topic: iot-kafka
+  topic: iot-5KHSJK
   group-id: strom-consumer
   auto-offset-reset: latest
 

@@ -16,6 +16,11 @@ public class ModelMsg implements Serializable {
     private List<Double> skew;
     private List<Double> kurtosis;
 
+    // TODO: 还可以增加其他原始的信息
+    /**
+     * [ T - windows_size, T] 之间的信息，会存在重复
+     */
+    private List<Double> humidDiffOriginal = new ArrayList<>();
 
     public List<Double> generate() {
         List<Double> result = new ArrayList<>();
@@ -29,6 +34,15 @@ public class ModelMsg implements Serializable {
         result.addAll(kurtosis);
         return result;
     }
+
+    public List<Double> getHumidDiffOriginal() {
+        return humidDiffOriginal;
+    }
+
+    public void setHumidDiffOriginal(List<Double> humidDiffOriginal) {
+        this.humidDiffOriginal = humidDiffOriginal;
+    }
+
 
     public long getTime() {
         return time;

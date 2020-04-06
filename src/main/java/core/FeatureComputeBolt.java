@@ -35,11 +35,29 @@ public class FeatureComputeBolt extends BaseRichBolt {
         if (window.size() != windowSize) {
             return null;
         }
+        /*
+         * 计算数学统计量
+         */
         ModelMsg modelMsg = new ModelMsg();
         List<List<IoTMsg>> splits = split(window, windowSize, blockSize);
         List<List<IoTMsg>> features = calculate(splits);
         merge(modelMsg, features);
+
+        /*
+         * 加入原始信息
+         *
+         */
+        addOriginalFeature(modelMsg, window);
+
         return modelMsg;
+    }
+
+    private void addOriginalFeature(ModelMsg modelMsg, List<IoTMsg> window) {
+        List<Double> humidDiffOriginal = new ArrayList<>();
+        for (IoTMsg msg : window) {
+            humidDiffOriginal.add(msg.getHumidOutDiff());
+        }
+        modelMsg.setHumidDiffOriginal(humidDiffOriginal);
     }
 
 

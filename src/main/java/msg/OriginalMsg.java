@@ -192,17 +192,23 @@ public class OriginalMsg implements Serializable {
             logger.error("Time in " + getTimestamp() + " is missing or duplicate value: current=" + count + " while required=" + requiredCount);
             return new Double[]{};
         }
-        return new Double[]{
-                result.get("humidOut") - result.get("humidSetting"),
-                result.get("windSpeed"),
-                result.get("humidOut"),
-                result.get("humidIn"),
-                result.get("press"),
-                result.get("tempActual1"),
-                result.get("tempSetting1"),
-                result.get("tempActual2"),
-                result.get("tempSetting2"),
-        };
+        Double[] msg = new Double[]{};
+        try {
+            msg = new Double[]{
+                    result.get("humidOut") - result.get("humidSetting"),
+                    result.get("windSpeed"),
+                    result.get("humidOut"),
+                    result.get("humidIn"),
+                    result.get("press"),
+                    result.get("tempActual1"),
+                    result.get("tempSetting1"),
+                    result.get("tempActual2"),
+                    result.get("tempSetting2"),
+            };
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
+        return msg;
     }
 
     @Override
