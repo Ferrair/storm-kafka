@@ -31,7 +31,7 @@ public class ModelBolt extends BaseRichBolt {
         this.outputCollector = outputCollector;
     }
 
-    private ControlMsg callModel(ModelMsg msg) {
+    private ControlMsg callModel(ModelMsg msg){
         ControlMsg controlMsg = new ControlMsg();
         Map<String, Object> params = new HashMap<>();
         params.put("time", msg.getTime());
@@ -41,27 +41,12 @@ public class ModelBolt extends BaseRichBolt {
         params.put("stage", msg.getStage());
         params.put("features", msg.generate());
         params.put("originals", msg.getHumidDiffOriginal());
-        
-        Response response = null;
-        try {
-            response = AppUtil.doPost(AppConfig.ModelServerConfig.modelUrl, String.valueOf(new JSONObject(params)));
-            JSONObject json = new JSONObject(Objects.requireNonNull(response.body()).string());
-            controlMsg.setBatch(json.getString("batch"));
-            controlMsg.setBrand(json.getString("brand"));
-            controlMsg.setTime(json.getLong("time"));
-            controlMsg.setVersion(json.getString("version"));
-            controlMsg.setDeviceStatus(json.getString("deviceStatus"));
-            controlMsg.setTempRegion1((float) json.getDouble("tempRegion1"));
-            controlMsg.setTempRegion2((float) json.getDouble("tempRegion2"));
 
-            logger.info("predict value = " + controlMsg.getTempRegion1() + " " + controlMsg.getTempRegion2());
+        try {
+            AppUtil.doPost(AppConfig.ModelServerConfig.modelUrl, String.valueOf(new JSONObject(params)));
         } catch (IOException e) {
             logger.error(e.getMessage());
             e.printStackTrace();
-        } finally {
-            if (response != null) {
-                response.close();
-            }
         }
         return controlMsg;
     }
@@ -70,14 +55,17 @@ public class ModelBolt extends BaseRichBolt {
      * 从 FeatureComputeBolt 获取特征计算结果，调用模型预测，将控制信息传递给下游
      */
     public void execute(Tuple tuple) {
-        ModelMsg modelMsg = (ModelMsg) tuple.getValue(0);
-        ControlMsg controlMsg = callModel(modelMsg);
+        try {
+            ModelMsg modelMsg = (ModelMsg) tuple.getValue(0);
+            ControlMsg controlMsg = callModel(modelMsg);
+            saveControlMsg(controlMsg);
+            outputCollector.emit(new Values(controlMsg));
 
-        saveControlMsg(controlMsg);
-
-        outputCollector.emit(new Values(controlMsg));
-        outputCollector.ack(tuple);
-
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        } finally {
+            outputCollector.ack(tuple);
+        }
     }
 
     private void saveControlMsg(ControlMsg controlMsg) {

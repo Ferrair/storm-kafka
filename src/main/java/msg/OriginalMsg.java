@@ -110,7 +110,13 @@ public class OriginalMsg implements Serializable {
         }
         for (SensorMsg sensorMsg : values) {
             if (sensorMsg.id instanceof String && sensorMsg.id.equals(mapping.get("flowAcc"))) {
-                return Double.parseDouble((String) sensorMsg.v);
+                Double v;
+                try {
+                    v = Double.parseDouble((String) sensorMsg.v);
+                } catch (Exception e) {
+                    v = (Double) sensorMsg.v;
+                }
+                return v;
             }
         }
         return -1d;
@@ -128,10 +134,18 @@ public class OriginalMsg implements Serializable {
             double deviceStatus1 = 1d, deviceStatus2 = 0d;
             for (SensorMsg sensorMsg : values) {
                 if (sensorMsg.id instanceof String && sensorMsg.id.equals(mapping.get("deviceStatus1"))) {
-                    deviceStatus1 = Double.parseDouble((String) sensorMsg.v);
+                    try {
+                        deviceStatus1 = Double.parseDouble((String) sensorMsg.v);
+                    } catch (Exception e) {
+                        deviceStatus1 = (Double) sensorMsg.v;
+                    }
                 }
                 if (sensorMsg.id instanceof String && sensorMsg.id.equals(mapping.get("deviceStatus2"))) {
-                    deviceStatus2 = Double.parseDouble((String) sensorMsg.v);
+                    try {
+                        deviceStatus2 = Double.parseDouble((String) sensorMsg.v);
+                    } catch (Exception e) {
+                        deviceStatus2 = (Double) sensorMsg.v;
+                    }
                 }
             }
             return (int) (deviceStatus1 + deviceStatus2 * 256);
@@ -185,7 +199,11 @@ public class OriginalMsg implements Serializable {
                 if (sensorMsg.id instanceof String && mapping.containsValue(sensorMsg.id) && !result.containsKey(key)) {
                     if (((String) sensorMsg.id).startsWith("5H.5H")) {
                         count++;
-                        result.put(key, Double.parseDouble((String) sensorMsg.v));
+                        try {
+                            result.put(key, Double.parseDouble((String) sensorMsg.v));
+                        } catch (Exception e) {
+                            result.put(key, (Double) sensorMsg.v);
+                        }
                     }
                 }
             }

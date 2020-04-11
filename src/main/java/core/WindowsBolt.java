@@ -118,18 +118,18 @@ public class WindowsBolt extends BaseRichBolt {
 
 
     /**
-     * TODO
      * 根据 index 判断 stage
      */
     private String determineStage(OriginalMsg msg) {
-//        if (startIndex < 200) {
-//            return "head";
-//        } else if (startIndex < 400) {
-//            return "transition";
-//        } else {
-//            return "produce";
-//        }
-        return "produce";
+        int deviceStatus = msg.getDeviceStatus();
+
+        if (startIndex < 200 && deviceStatus != 32) {
+            return "head";
+        } else if (startIndex < 400 && deviceStatus != 32) {
+            return "transition";
+        } else {
+            return "produce";
+        }
     }
 
 
@@ -145,7 +145,6 @@ public class WindowsBolt extends BaseRichBolt {
     }
 
     /**
-     * TODO: untested
      * 判断当前Msg在整个批次中的Index
      * 1. 如果当前Msg的流量累计量为0 -> 0
      * 2. 之前没有批次在生产, 或者当前批次和之前批次不一样 -> 0
@@ -176,14 +175,19 @@ public class WindowsBolt extends BaseRichBolt {
             return;
         }
         // 不是生产状态，清空队列后返回
-        if (!OriginalMsg.isInProductMode(originalMsg.getDeviceStatus())) {
-            logger.info("Current data is not in product mode: " + str);
-            window.clear();
-            if (ack) {
-                outputCollector.ack(tuple);
+        try {
+            if (!OriginalMsg.isInProductMode(originalMsg.getDeviceStatus())) {
+                logger.info("Current data is not in product mode: " + str);
+                window.clear();
+                if (ack) {
+                    outputCollector.ack(tuple);
+                }
+                return;
             }
-            return;
+        } catch (Exception e) {
+            logger.error(e.getMessage());
         }
+
 
         // 检查时间戳
         long time = originalMsg.getTimestamp();

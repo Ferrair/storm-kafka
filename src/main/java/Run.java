@@ -34,7 +34,7 @@ public class Run {
             tp.setBolt("window", new WindowsBolt(), 1).shuffleGrouping("kafka");
             tp.setBolt("feature_compute", new FeatureComputeBolt()).fieldsGrouping("window", new Fields("window"));
             tp.setBolt("model", new ModelBolt()).fieldsGrouping("feature_compute", new Fields("features"));
-            tp.setBolt("control", new ControlBolt()).fieldsGrouping("model", new Fields("model"));
+            // tp.setBolt("control", new ControlBolt()).fieldsGrouping("model", new Fields("model"));
 
             // 提交运行
             StormTopology sp = tp.createTopology();

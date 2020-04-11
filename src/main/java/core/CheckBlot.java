@@ -64,57 +64,19 @@ public class CheckBlot extends BaseRichBolt {
 
     @Override
     public void execute(Tuple tuple) {
-        String str = null;
         try {
-            str = parseTuple(tuple);
+            String str = parseTuple(tuple);
+            OriginalMsg originalMsg = gson.fromJson(str, OriginalMsg.class);
+            long timestamp = originalMsg.getTimestamp();
+            checkInputValue(originalMsg);
+            String sb = timestamp2Str(timestamp, "yyyy-MM-dd HH:mm:ss") + " --- " + str;
+            FileUtil.append(sb, "snapshot-real.csv");
         } catch (Exception e) {
-            logger.info(e.getMessage());
-            outputCollector.ack(tuple);
-            return;
-        }
-
-        OriginalMsg originalMsg = null;
-
-        try {
-            originalMsg = gson.fromJson(str, OriginalMsg.class);
-        } catch (JsonSyntaxException e) {
-            logger.error(e.getMessage() + " " + tuple.toString());
-            outputCollector.ack(tuple);
-            return;
-        }
-
-        long timestamp = originalMsg.getTimestamp();
-
-        checkInputValue(originalMsg);
-
-//        if (timestamp >= str2Timestamp("2020-03-12 00:00:00")) {
-//            logger.info(timestamp2Str(timestamp, "yyyy-MM-dd HH:mm:ss"));
-//        }
-//        if (timestamp >= str2Timestamp("2020-02-28 00:00:00") && timestamp < str2Timestamp("2020-02-29 00:00:00")
-//                || timestamp >= str2Timestamp("2020-03-05 00:00:00") && timestamp < str2Timestamp("2020-03-07 00:00:00")
-//        || timestamp >= str2Timestamp("2020-03-08 00:00:00") && timestamp < str2Timestamp("2020-03-09 00:00:00")) {
-//            StringBuffer sb = new StringBuffer();
-//            sb.append(timestamp2Str(timestamp, "yyyy-MM-dd HH:mm:ss"))
-//                    .append(",")
-//                    .append(originalMsg.getDeviceStatus());
-//            try {
-//                FileUtil.append(sb.toString(), "check.csv");
-//            } catch (Exception e) {
-//                outputCollector.ack(tuple);
-//                e.printStackTrace();
-//            }
-//        }
-        StringBuilder sb = new StringBuilder();
-        sb.append(timestamp2Str(timestamp, "yyyy-MM-dd HH:mm:ss"))
-                .append(" --- ")
-                .append(str);
-        try {
-            FileUtil.append(sb.toString(), "check.csv");
-        } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
         } finally {
             outputCollector.ack(tuple);
         }
+
     }
 
     private void checkInputValue(OriginalMsg originalMsg) {
@@ -150,7 +112,9 @@ public class CheckBlot extends BaseRichBolt {
         }
 
         if (warningCounter >= N) {
-            throw new IllegalStateException("Model failure, please contract administrator");
+            // throw new IllegalStateException("Model failure, please contract administrator");
+            logger.error("Model failure, please contract administrator");
+            warningCounter = 0;
         }
     }
 
