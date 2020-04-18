@@ -9,12 +9,21 @@ public class ProcessMsg implements Serializable {
     private String stage;
     private String brand;
     private String batch;
+    private String deviceStatus;
     private long time;
     private long index;
 
     private int windowSize;
     private int blockSize;
     private List<IoTMsg> window;
+
+    public String getDeviceStatus() {
+        return deviceStatus;
+    }
+
+    public void setDeviceStatus(String deviceStatus) {
+        this.deviceStatus = deviceStatus;
+    }
 
     public String getStage() {
         return stage;

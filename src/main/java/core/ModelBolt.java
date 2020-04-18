@@ -31,7 +31,7 @@ public class ModelBolt extends BaseRichBolt {
         this.outputCollector = outputCollector;
     }
 
-    private ControlMsg callModel(ModelMsg msg){
+    private ControlMsg callModel(ModelMsg msg) {
         ControlMsg controlMsg = new ControlMsg();
         Map<String, Object> params = new HashMap<>();
         params.put("time", msg.getTime());
@@ -41,6 +41,7 @@ public class ModelBolt extends BaseRichBolt {
         params.put("stage", msg.getStage());
         params.put("features", msg.generate());
         params.put("originals", msg.getHumidDiffOriginal());
+        params.put("device_status", msg.getDeviceStatus());
 
         try {
             AppUtil.doPost(AppConfig.ModelServerConfig.modelUrl, String.valueOf(new JSONObject(params)));

@@ -210,6 +210,7 @@ public class WindowsBolt extends BaseRichBolt {
         String stage = determineStage(originalMsg);
         long index = determineIndex(originalMsg);
         String brand = originalMsg.getBrand();
+        String deviceStatus = String.valueOf(originalMsg.getDeviceStatus());
         String batch = originalMsg.getBatch();
         int[] modelConfig = getWindowSize(stage);
 
@@ -227,6 +228,7 @@ public class WindowsBolt extends BaseRichBolt {
             processMsg.setBatch(batch);
             processMsg.setBrand(brand);
             processMsg.setStage(stage);
+            processMsg.setDeviceStatus(deviceStatus);
             processMsg.setTime(time);
             // need copy a new list for further use
             // otherwise, cause multiple threads problems

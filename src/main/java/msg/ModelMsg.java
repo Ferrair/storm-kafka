@@ -10,6 +10,7 @@ public class ModelMsg implements Serializable {
     private long index;
     private String brand;
     private String stage;
+    private String deviceStatus;
     private List<Double> mean;
     private List<Double> std;
     private List<Double> integral;
@@ -21,6 +22,14 @@ public class ModelMsg implements Serializable {
      * [ T - windows_size, T] 之间的信息，会存在重复
      */
     private List<Double> humidDiffOriginal = new ArrayList<>();
+
+    public String getDeviceStatus() {
+        return deviceStatus;
+    }
+
+    public void setDeviceStatus(String deviceStatus) {
+        this.deviceStatus = deviceStatus;
+    }
 
     public List<Double> generate() {
         List<Double> result = new ArrayList<>();

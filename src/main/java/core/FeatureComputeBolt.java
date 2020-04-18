@@ -150,6 +150,7 @@ public class FeatureComputeBolt extends BaseRichBolt {
         modelMsg.setBrand(processMsg.getBrand());
         modelMsg.setIndex(processMsg.getIndex());
         modelMsg.setBatch(processMsg.getBatch());
+        modelMsg.setDeviceStatus(processMsg.getDeviceStatus());
         modelMsg.setTime(processMsg.getTime());
 
         // logger.info("Feature: " + processMsg.getTime() + " " + processMsg.toString());
