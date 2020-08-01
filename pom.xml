@@ -59,17 +59,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.example</groupId>
-            <artifactId>storm-kafka</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.ac.imperial</groupId>
-            <artifactId>PIPE-gui</artifactId>
-            <version>5.0.3-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>uk.ac.imperial</groupId>
             <artifactId>PIPE-gui</artifactId>
             <version>5.0.3-SNAPSHOT</version>

@@ -18,11 +18,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.AppUtil;
-import util.FileUtil;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
 
@@ -160,6 +156,7 @@ public class WindowsBolt extends BaseRichBolt {
 
     @Override
     public void execute(Tuple tuple) {
+        long kafkaTime = System.currentTimeMillis();
         String str = parseTuple(tuple);
         OriginalMsg originalMsg = null;
         try {
@@ -174,6 +171,14 @@ public class WindowsBolt extends BaseRichBolt {
             }
             return;
         }
+        // 检查时间戳
+        long time = originalMsg.getTimestamp();
+        if (System.currentTimeMillis() - time > 1000 * 60 * 3) {
+            logger.info("Data is too old to use. " + time);
+            outputCollector.ack(tuple);
+            return;
+        }
+
         // 不是生产状态，清空队列后返回
         try {
             if (!OriginalMsg.isInProductMode(originalMsg.getDeviceStatus())) {
@@ -188,9 +193,6 @@ public class WindowsBolt extends BaseRichBolt {
             logger.error(e.getMessage());
         }
 
-
-        // 检查时间戳
-        long time = originalMsg.getTimestamp();
         if (!checkTimeStamp(time)) {
             logger.error("Current timestamp  " + time + " is smaller than last timestamp " + lastTimestamp);
             if (ack) {
@@ -230,6 +232,8 @@ public class WindowsBolt extends BaseRichBolt {
             processMsg.setStage(stage);
             processMsg.setDeviceStatus(deviceStatus);
             processMsg.setTime(time);
+            processMsg.setWindowTime(System.currentTimeMillis());
+            processMsg.setKafkaTime(kafkaTime);
             // need copy a new list for further use
             // otherwise, cause multiple threads problems
             processMsg.setWindow(new ArrayList<>(window));

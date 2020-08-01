@@ -6,6 +6,9 @@ import java.util.List;
 
 public class ModelMsg implements Serializable {
     private long time;
+    private long modelTime;
+    private long windowTime;
+    private long kafkaTime;
     private String batch;
     private long index;
     private String brand;
@@ -42,6 +45,30 @@ public class ModelMsg implements Serializable {
         result.addAll(skew);
         result.addAll(kurtosis);
         return result;
+    }
+
+    public long getWindowTime() {
+        return windowTime;
+    }
+
+    public void setWindowTime(long windowTime) {
+        this.windowTime = windowTime;
+    }
+
+    public long getModelTime() {
+        return modelTime;
+    }
+
+    public long getKafkaTime() {
+        return kafkaTime;
+    }
+
+    public void setKafkaTime(long kafkaTime) {
+        this.kafkaTime = kafkaTime;
+    }
+
+    public void setModelTime(long modelTime) {
+        this.modelTime = modelTime;
     }
 
     public List<Double> getHumidDiffOriginal() {

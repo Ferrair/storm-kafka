@@ -1,7 +1,6 @@
 package msg;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.List;
 
 public class ProcessMsg implements Serializable {
@@ -11,6 +10,8 @@ public class ProcessMsg implements Serializable {
     private String batch;
     private String deviceStatus;
     private long time;
+    private long windowTime;
+    private long kafkaTime;
     private long index;
 
     private int windowSize;
@@ -79,6 +80,22 @@ public class ProcessMsg implements Serializable {
 
     public void setTime(long time) {
         this.time = time;
+    }
+
+    public long getWindowTime() {
+        return windowTime;
+    }
+
+    public long getKafkaTime() {
+        return kafkaTime;
+    }
+
+    public void setKafkaTime(long kafkaTime) {
+        this.kafkaTime = kafkaTime;
+    }
+
+    public void setWindowTime(long windowTime) {
+        this.windowTime = windowTime;
     }
 
     public long getIndex() {

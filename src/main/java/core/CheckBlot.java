@@ -26,12 +26,14 @@ public class CheckBlot extends BaseRichBolt {
     private OutputCollector outputCollector;
     private int warningCounter = 0;
     private static final int N = 10;
+    private String date;
 
 
     @Override
     public void prepare(Map<String, Object> map, TopologyContext topologyContext, OutputCollector outputCollector) {
         this.gson = new Gson();
         this.outputCollector = outputCollector;
+        this.date = timestamp2Str(System.currentTimeMillis(), "yyyy-MM-dd");
     }
 
 
@@ -40,7 +42,7 @@ public class CheckBlot extends BaseRichBolt {
     }
 
 
-    public String timestamp2Str(long timestamp, String format) {
+    public static String timestamp2Str(long timestamp, String format) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat(format);
             return sdf.format(timestamp);
@@ -68,15 +70,20 @@ public class CheckBlot extends BaseRichBolt {
             String str = parseTuple(tuple);
             OriginalMsg originalMsg = gson.fromJson(str, OriginalMsg.class);
             long timestamp = originalMsg.getTimestamp();
+            // 去除很早的数据
+            // if (System.currentTimeMillis() - timestamp > 1000 * 60) {
+            // outputCollector.ack(tuple);
+            //    return;
+            // }
+
             checkInputValue(originalMsg);
-            String sb = timestamp2Str(timestamp, "yyyy-MM-dd HH:mm:ss") + " --- " + str;
-            FileUtil.append(sb, "snapshot-real.csv");
+            // String sb = timestamp2Str(timestamp, "yyyy-MM-dd HH:mm:ss") + " - " + originalMsg.toString();
+            // FileUtil.append(sb, this.date + "-snapshot.csv");
         } catch (Exception e) {
             logger.error(e.getMessage());
         } finally {
             outputCollector.ack(tuple);
         }
-
     }
 
     private void checkInputValue(OriginalMsg originalMsg) {
@@ -112,7 +119,7 @@ public class CheckBlot extends BaseRichBolt {
         }
 
         if (warningCounter >= N) {
-            // throw new IllegalStateException("Model failure, please contract administrator");
+            sendErrorInfo("Model failure, please contract administrator: warning count = " + N);
             logger.error("Model failure, please contract administrator");
             warningCounter = 0;
         }
@@ -121,6 +128,11 @@ public class CheckBlot extends BaseRichBolt {
     private void sendWarningInfo(String info) {
 
     }
+
+    private void sendErrorInfo(String info) {
+
+    }
+
 
     private static Map<String, Double> humidOutCriterion = new HashMap<>();
     private static Map<String, Double> tempSetting1Criterion = new HashMap<>();

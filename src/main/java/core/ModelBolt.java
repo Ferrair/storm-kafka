@@ -1,7 +1,6 @@
 package core;
 
 import config.AppConfig;
-import msg.ControlMsg;
 import msg.ModelMsg;
 import okhttp3.Response;
 import org.apache.storm.task.OutputCollector;
@@ -10,7 +9,6 @@ import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseRichBolt;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
-import org.apache.storm.tuple.Values;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +17,6 @@ import util.AppUtil;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 
 public class ModelBolt extends BaseRichBolt {
@@ -31,9 +28,11 @@ public class ModelBolt extends BaseRichBolt {
         this.outputCollector = outputCollector;
     }
 
-    private ControlMsg callModel(ModelMsg msg) {
-        ControlMsg controlMsg = new ControlMsg();
+    private void callModel(ModelMsg msg) {
         Map<String, Object> params = new HashMap<>();
+        params.put("window_time", msg.getWindowTime()); // windows bolt完成后的时间
+        params.put("model_time", msg.getModelTime()); //  计算完特征后的时间
+        params.put("kafka_time", msg.getKafkaTime()); // 从Kafka得到的时间
         params.put("time", msg.getTime());
         params.put("brand", msg.getBrand());
         params.put("batch", msg.getBatch());
@@ -43,13 +42,18 @@ public class ModelBolt extends BaseRichBolt {
         params.put("originals", msg.getHumidDiffOriginal());
         params.put("device_status", msg.getDeviceStatus());
 
+        // 将消息传到模型端，就不管了
+        Response response = null;
         try {
-            AppUtil.doPost(AppConfig.ModelServerConfig.modelUrl, String.valueOf(new JSONObject(params)));
+            response = AppUtil.doPost(AppConfig.ModelServerConfig.modelUrl, String.valueOf(new JSONObject(params)));
         } catch (IOException e) {
             logger.error(e.getMessage());
             e.printStackTrace();
+        } finally {
+            if (response != null) {
+                response.close();
+            }
         }
-        return controlMsg;
     }
 
     /**
@@ -58,19 +62,12 @@ public class ModelBolt extends BaseRichBolt {
     public void execute(Tuple tuple) {
         try {
             ModelMsg modelMsg = (ModelMsg) tuple.getValue(0);
-            ControlMsg controlMsg = callModel(modelMsg);
-            saveControlMsg(controlMsg);
-            outputCollector.emit(new Values(controlMsg));
-
+            callModel(modelMsg);
         } catch (Exception e) {
             logger.error(e.getMessage());
         } finally {
             outputCollector.ack(tuple);
         }
-    }
-
-    private void saveControlMsg(ControlMsg controlMsg) {
-        // TODO 保存控制消息
     }
 
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {

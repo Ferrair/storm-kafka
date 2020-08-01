@@ -45,11 +45,11 @@ public class OriginalMsg implements Serializable {
     private static final Logger logger = LoggerFactory.getLogger(OriginalMsg.class);
 
     static {
-        mapping.put("batch", "6032.6032.LD5_YT603_2_YS2ROASTBATCHNO");
-        mapping.put("brand", "6032.6032.LD5_YT603_2_YS2ROASTBRAND");
+        mapping.put("batch", "6032.6032.LD5_YT603_2B_YS2ROASTBATCHNO");
+        mapping.put("brand", "6032.6032.LD5_YT603_2B_YS2ROASTBRAND");
         mapping.put("deviceStatus1", "5H.5H.LD5_KL2226_PHASE1");
         mapping.put("deviceStatus2", "5H.5H.LD5_KL2226_PHASE2");
-        mapping.put("siroxWorkStatus", "5H.5H.LD5_KL2226_SiroxWorkStatus");
+        // mapping.put("siroxWorkStatus", "5H.5H.LD5_KL2226_SiroxWorkStatus");
         mapping.put("flowAcc", "5H.5H.LD5_CK2222_TbcLeafFlowSH");
         mapping.put("humidOut", "5H.5H.LD5_KL2226_ZF2LeafMois");
         mapping.put("humidIn", "5H.5H.LD5_KL2226_InputMoisture");
@@ -105,21 +105,27 @@ public class OriginalMsg implements Serializable {
     }
 
     public double getFlowAcc() {
-        if (values.size() == 0) {
+        try {
+            if (values.size() == 0) {
+                return -1d;
+            }
+            for (SensorMsg sensorMsg : values) {
+                if (sensorMsg.id instanceof String && sensorMsg.id.equals(mapping.get("flowAcc"))) {
+                    Double v;
+                    try {
+                        v = Double.parseDouble((String) sensorMsg.v);
+                    } catch (Exception e) {
+                        v = (Double) sensorMsg.v;
+                    }
+                    return v;
+                }
+            }
+            return -1d;
+        } catch (Exception e) {
+            logger.error(e.getMessage());
             return -1d;
         }
-        for (SensorMsg sensorMsg : values) {
-            if (sensorMsg.id instanceof String && sensorMsg.id.equals(mapping.get("flowAcc"))) {
-                Double v;
-                try {
-                    v = Double.parseDouble((String) sensorMsg.v);
-                } catch (Exception e) {
-                    v = (Double) sensorMsg.v;
-                }
-                return v;
-            }
-        }
-        return -1d;
+
     }
 
     public boolean isBatchStart() {
@@ -157,27 +163,37 @@ public class OriginalMsg implements Serializable {
     }
 
     public String getBrand() {
-        if (values.size() == 0) {
+        try {
+            if (values.size() == 0) {
+                return "";
+            }
+            for (SensorMsg sensorMsg : values) {
+                if (sensorMsg.id instanceof String && sensorMsg.id.equals(mapping.get("brand"))) {
+                    return (String) sensorMsg.v;
+                }
+            }
+            return "";
+        } catch (Exception e) {
+            logger.error(e.getMessage());
             return "";
         }
-        for (SensorMsg sensorMsg : values) {
-            if (sensorMsg.id instanceof String && sensorMsg.id.equals(mapping.get("brand"))) {
-                return (String) sensorMsg.v;
-            }
-        }
-        return "";
     }
 
     public String getBatch() {
-        if (values.size() == 0) {
+        try {
+            if (values.size() == 0) {
+                return "";
+            }
+            for (SensorMsg sensorMsg : values) {
+                if (sensorMsg.id instanceof String && sensorMsg.id.equals(mapping.get("batch"))) {
+                    return (String) sensorMsg.v;
+                }
+            }
+            return "";
+        } catch (Exception e) {
+            logger.error(e.getMessage());
             return "";
         }
-        for (SensorMsg sensorMsg : values) {
-            if (sensorMsg.id instanceof String && sensorMsg.id.equals(mapping.get("batch"))) {
-                return (String) sensorMsg.v;
-            }
-        }
-        return "";
     }
 
     /**

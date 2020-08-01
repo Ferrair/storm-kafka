@@ -30,11 +30,10 @@ public class Run {
 
             KafkaSpout<String, String> kafkaSpout = new KafkaSpout<>(kafkaSpoutConfig);
             tp.setSpout("kafka", new KafkaSpout<String, String>(kafkaSpoutConfig), 1);
-            tp.setBolt("check", new CheckBlot(), 1).shuffleGrouping("kafka");
+            // tp.setBolt("check", new CheckBlot(), 1).shuffleGrouping("kafka");
             tp.setBolt("window", new WindowsBolt(), 1).shuffleGrouping("kafka");
             tp.setBolt("feature_compute", new FeatureComputeBolt()).fieldsGrouping("window", new Fields("window"));
             tp.setBolt("model", new ModelBolt()).fieldsGrouping("feature_compute", new Fields("features"));
-            // tp.setBolt("control", new ControlBolt()).fieldsGrouping("model", new Fields("model"));
 
             // 提交运行
             StormTopology sp = tp.createTopology();
