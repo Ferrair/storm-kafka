@@ -58,12 +58,26 @@
             <version>4.12</version>
             <scope>test</scope>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/io.cucumber/gherkin-jvm-deps -->
         <dependency>
-            <groupId>uk.ac.imperial</groupId>
-            <artifactId>PIPE-gui</artifactId>
-            <version>5.0.3-SNAPSHOT</version>
-            <scope>compile</scope>
+            <groupId>io.cucumber</groupId>
+            <artifactId>gherkin-jvm-deps</artifactId>
+            <version>1.0.6</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.google.inject/guice -->
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>3.0</version>
+        </dependency>
+
+
+        <!--        <dependency>-->
+        <!--            <groupId>uk.ac.imperial</groupId>-->
+        <!--            <artifactId>PIPE-gui</artifactId>-->
+        <!--            <version>5.0.3-SNAPSHOT</version>-->
+        <!--            <scope>compile</scope>-->
+        <!--        </dependency>-->
     </dependencies>
 
     <build>
