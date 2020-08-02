@@ -23,6 +23,10 @@ public class OriginalMsg implements Serializable {
     @Expose
     private long timestamp;
 
+    public List<SensorMsg> getValues() {
+        return values;
+    }
+
     @Expose
     private List<SensorMsg> values;
 
@@ -125,7 +129,6 @@ public class OriginalMsg implements Serializable {
             logger.error(e.getMessage());
             return -1d;
         }
-
     }
 
     public boolean isBatchStart() {
