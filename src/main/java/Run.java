@@ -22,21 +22,19 @@ public class Run {
         } else {
             final TopologyBuilder tp = new TopologyBuilder();
 
-//            KafkaSpoutConfig<String, String> kafkaSpoutConfig = KafkaSpoutConfig.builder(
-//                    String.format("%s:%s", AppConfig.DefaultKafkaConfig.host, AppConfig.DefaultKafkaConfig.port),
-//                    AppConfig.DefaultKafkaConfig.topic)
-//                    .setProp(AppConfig.DefaultKafkaConfig.kafkaProperties())
-//                    .setProcessingGuarantee(KafkaSpoutConfig.ProcessingGuarantee.AT_LEAST_ONCE)
-//                    .build();
-//
-//            KafkaSpout<String, String> kafkaSpout = new KafkaSpout<>(kafkaSpoutConfig);
-//            tp.setSpout("kafka", new KafkaSpout<String, String>(kafkaSpoutConfig), 1);
-            // tp.setBolt("check", new CheckBlot(), 1).shuffleGrouping("kafka");
-//            tp.setBolt("window", new WindowsBolt(), 1).shuffleGrouping("kafka");
-//            tp.setBolt("feature_compute", new FeatureComputeBolt()).fieldsGrouping("window", new Fields("window"));
-//            tp.setBolt("model", new ModelBolt()).fieldsGrouping("feature_compute", new Fields("features"));
-            tp.setSpout("test", new TestSpout());
-            tp.setBolt("direct_window", new DirectWindowsBolt(), 1).shuffleGrouping("test");
+            KafkaSpoutConfig<String, String> kafkaSpoutConfig = KafkaSpoutConfig.builder(
+                    String.format("%s:%s", AppConfig.DefaultKafkaConfig.host, AppConfig.DefaultKafkaConfig.port),
+                    AppConfig.DefaultKafkaConfig.topic)
+                    .setProp(AppConfig.DefaultKafkaConfig.kafkaProperties())
+                    .setProcessingGuarantee(KafkaSpoutConfig.ProcessingGuarantee.AT_LEAST_ONCE)
+                    .build();
+
+            KafkaSpout<String, String> kafkaSpout = new KafkaSpout<>(kafkaSpoutConfig);
+            tp.setSpout("kafka", new KafkaSpout<String, String>(kafkaSpoutConfig), 1);
+             tp.setBolt("check", new CheckBlot(), 1).shuffleGrouping("kafka");
+            tp.setBolt("window", new WindowsBolt(), 1).shuffleGrouping("kafka");
+            tp.setBolt("feature_compute", new FeatureComputeBolt()).fieldsGrouping("window", new Fields("window"));
+            tp.setBolt("model", new ModelBolt()).fieldsGrouping("feature_compute", new Fields("features"));
 
             // 提交运行
             StormTopology sp = tp.createTopology();

@@ -13,8 +13,8 @@ kafka-spout:
 model-server:
   host: 10.100.100.106 # 模型部署在那个host
   port: 5000
-  model-url: http://10.100.100.106:5000/api/predict  # 模型预测的URL，需要修改为 IP:port/api/predict 格式
-  model-config-url: http://10.100.100.106:5000/api/load_model_config # 模型预测的URL，需要修改 IP:port/api/load_model_config 格式
+  model-url: http://0.0.0.0:5000/api/predict  # 模型预测的URL，需要修改为 IP:port/api/predict 格式
+  model-config-url: http://0.0.0.0:5000/api/load_model_config # 模型预测的URL，需要修改 IP:port/api/load_model_config 格式
 
 control-server:
   host: 10.100.100.117 # 反向控制的host，需要修改

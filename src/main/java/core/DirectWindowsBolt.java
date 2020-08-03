@@ -35,7 +35,7 @@ public class DirectWindowsBolt extends BaseRichBolt {
 
     private Gson gson;
     /**
-     * 为了一个队列，先进先出，队列长度始终不变
+     * 队列，先进先出，队列长度始终不变
      */
     private Queue<Map<String, String>> window = new LinkedList<>();
     /**
